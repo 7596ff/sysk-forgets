@@ -1,4 +1,3 @@
-use rss::Channel;
 use rusqlite::{params, Connection};
 
 const SELECT_NAME: &'static str = include_str!("../sql/select_name.sql");
