@@ -1,0 +1,1 @@
+SELECT title FROM items WHERE title LIKE ?1 COLLATE NOCASE;

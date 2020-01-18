@@ -10,7 +10,7 @@ use commands::*;
 const CREATE_DB: &'static str = include_str!("sql/create_db.sql");
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = App::new(clap::crate_name!())
         .about(clap::crate_description!())
         .author(clap::crate_authors!())
@@ -22,7 +22,12 @@ fn main() {
                 .value_name("FILE")
                 .takes_value(true),
         )
-        .subcommand(App::new("sync").about("Download feed and upsert into database"));
+        .subcommand(App::new("sync").about("Download feed and upsert into database"))
+        .subcommand(
+            App::new("search")
+                .about("search for a term")
+                .arg(Arg::with_name("input").multiple(true)),
+        );
 
     let matches = app.get_matches();
 
@@ -43,15 +48,21 @@ fn main() {
         }
     };
 
-    let conn = Connection::open(&database_location)
-        .expect("failed to create connection to sqlite database");
+    let conn = Connection::open(&database_location)?;
 
     // initialize the database if empty
-    conn.execute_batch(&CREATE_DB)
-        .expect("failed to initialize database");
+    conn.execute_batch(&CREATE_DB)?;
 
     match matches.subcommand_name() {
         Some("sync") => sync::exec(&FEED_URL, conn),
-        _ => println!("none"), // i want to print clap's help here
+        Some("search") => {
+            if let Some(search_matches) = matches.subcommand_matches("search") {
+                let search_text: Vec<&str> = search_matches.values_of("input").unwrap().collect();
+                search::exec(search_text.join(" "), conn)
+            } else {
+                Ok(())
+            }
+        }
+        _ => Ok(()),
     }
 }

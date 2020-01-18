@@ -1,24 +1,24 @@
-use rss::{Channel, Item};
+use rss::Channel;
 use rusqlite::{params, Connection};
 
 const INSERT_ITEM: &'static str = include_str!("../sql/insert_item.sql");
 
-pub fn exec(feed: &'static str, conn: Connection) {
+pub fn exec(feed: &'static str, conn: Connection) -> Result<(), Box<dyn std::error::Error>> {
     let channel = Channel::from_url(&feed).expect("could not fetch rss feed");
 
     for item in channel.items().iter() {
-        let title = item.title().unwrap_or("");
-        let pub_date = item.pub_date().unwrap_or("");
-        let content = item.content().unwrap_or("");
+        let title = item.title().unwrap_or_default();
+        let pub_date = item.pub_date().unwrap_or_default();
+        let content = item.content().unwrap_or_default();
         let guid = item.guid().unwrap().value();
         let enclosure = item.enclosure().unwrap().url();
 
         let itunes = item.itunes_ext().unwrap();
-        let author = itunes.author().unwrap_or("");
-        let image = itunes.image().unwrap_or("");
-        let subtitle = itunes.subtitle().unwrap_or("");
-        let summary = itunes.summary().unwrap_or("");
-        let duration = itunes.duration().unwrap_or("");
+        let author = itunes.author().unwrap_or_default();
+        let image = itunes.image().unwrap_or_default();
+        let subtitle = itunes.subtitle().unwrap_or_default();
+        let summary = itunes.summary().unwrap_or_default();
+        let duration = itunes.duration().unwrap_or_default();
 
         conn.execute(
             &INSERT_ITEM,
@@ -26,9 +26,9 @@ pub fn exec(feed: &'static str, conn: Connection) {
                 title, pub_date, author, image, subtitle, summary, content, duration, guid,
                 enclosure
             ],
-        )
-        .unwrap();
+        )?;
     }
 
     println!("Added or updated {} feed items.", channel.items().len());
+    Ok(())
 }
