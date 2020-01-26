@@ -1,1 +1,1 @@
-SELECT title FROM items WHERE title LIKE ?1 COLLATE NOCASE;
+SELECT title, guid FROM items WHERE title LIKE ?1 COLLATE NOCASE;

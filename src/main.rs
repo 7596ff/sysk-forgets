@@ -27,6 +27,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             App::new("search")
                 .about("search for a term")
                 .arg(Arg::with_name("input").multiple(true)),
+        )
+        .subcommand(
+            App::new("select")
+                .about("select a term")
+                .arg(Arg::with_name("input").multiple(true)),
         );
 
     let matches = app.get_matches();
@@ -59,6 +64,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if let Some(search_matches) = matches.subcommand_matches("search") {
                 let search_text: Vec<&str> = search_matches.values_of("input").unwrap().collect();
                 search::exec(search_text.join(" "), conn)
+            } else {
+                Ok(())
+            }
+        }
+        Some("select") => {
+            if let Some(search_matches) = matches.subcommand_matches("select") {
+                let search_text: Vec<&str> = search_matches.values_of("input").unwrap().collect();
+                select::exec(search_text.join(" "), conn)
             } else {
                 Ok(())
             }
