@@ -7,10 +7,13 @@ use rusqlite::Connection;
 mod commands;
 use commands::*;
 
+mod error;
+use error::Error;
+
 const CREATE_DB: &'static str = include_str!("sql/create_db.sql");
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Error> {
     let app = App::new(clap::crate_name!())
         .about(clap::crate_description!())
         .author(clap::crate_authors!())

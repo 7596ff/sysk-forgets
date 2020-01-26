@@ -1,9 +1,11 @@
 use rss::Channel;
 use rusqlite::{params, Connection};
 
+use crate::error::Error;
+
 const INSERT_ITEM: &'static str = include_str!("../sql/insert_item.sql");
 
-pub fn exec(feed: &'static str, conn: Connection) -> Result<(), Box<dyn std::error::Error>> {
+pub fn exec(feed: &'static str, conn: Connection) -> Result<(), Error> {
     let channel = Channel::from_url(&feed).expect("could not fetch rss feed");
 
     for item in channel.items().iter() {
