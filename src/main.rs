@@ -28,12 +28,12 @@ fn main() -> Result<(), Error> {
         .subcommand(App::new("sync").about("Download feed and upsert into database"))
         .subcommand(
             App::new("search")
-                .about("search for a term")
+                .about("Search for a term")
                 .arg(Arg::with_name("input").multiple(true)),
         )
         .subcommand(
             App::new("select")
-                .about("select a term")
+                .about("Select a term")
                 .arg(Arg::with_name("input").multiple(true)),
         );
 

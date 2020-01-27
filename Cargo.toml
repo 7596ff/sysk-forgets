@@ -12,3 +12,4 @@ rss = { version = "*", features = ["from_url"] }
 rusqlite = "*"
 clap = "*"
 directories = "*"
+dialoguer = "*"
