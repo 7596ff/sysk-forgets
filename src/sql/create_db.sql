@@ -2,7 +2,7 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS items (
     title TEXT,
-    pub_date TEXT,
+    pub_date INTEGER,
     itunes_author TEXT,
     itunes_image TEXT,
     itunes_subtitle TEXT,
