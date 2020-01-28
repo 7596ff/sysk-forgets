@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS mentioned_items (
     mentioned_guid TEXT,
     contained_episode TEXT,
     contained_guid TEXT PRIMARY KEY,
-    date_published TEXT
+    pub_date INTEGER
 );
 
 COMMIT;

@@ -1,14 +1,15 @@
+mod commands;
+mod error;
+mod model;
+
 use std::{fs, path::PathBuf};
 
 use clap::{App, Arg};
 use directories::BaseDirs;
 use rusqlite::Connection;
 
-mod commands;
-use commands::*;
-
-mod error;
-use error::Error;
+use crate::commands::*;
+use crate::error::Error;
 
 const CREATE_DB: &'static str = include_str!("sql/create_db.sql");
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";

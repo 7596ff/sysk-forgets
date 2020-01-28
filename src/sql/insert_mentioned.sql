@@ -3,7 +3,7 @@ INSERT OR REPLACE INTO mentioned_items (
     mentioned_guid,
     contained_episode,
     contained_guid,
-    date_published
+    pub_date
 ) VALUES (
     ?1,
     ?2,
