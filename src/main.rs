@@ -8,8 +8,10 @@ use clap::{App, Arg};
 use directories::BaseDirs;
 use rusqlite::Connection;
 
-use crate::commands::*;
-use crate::error::Error;
+use crate::{
+    commands::*,
+    error::Error,
+};
 
 const CREATE_DB: &'static str = include_str!("sql/create_db.sql");
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";
