@@ -1,6 +1,7 @@
 mod commands;
 mod error;
 mod model;
+mod util;
 
 use std::{fs, path::PathBuf};
 
@@ -73,7 +74,7 @@ fn main() -> Result<(), Error> {
             } else {
                 Ok(())
             }
-        }
+        },
         Some("select") => {
             if let Some(search_matches) = matches.subcommand_matches("select") {
                 let search_text: Vec<&str> = search_matches.values_of("input").unwrap().collect();

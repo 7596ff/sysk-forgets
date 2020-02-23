@@ -2,30 +2,17 @@ use chrono::{Datelike, NaiveDateTime, NaiveTime, Utc, Weekday};
 use dialoguer::Input;
 use rusqlite::{params, Connection, ToSql};
 
-use crate::error::Error;
-use crate::model::Item;
+use crate::{
+    error::Error,
+    model::Item,
+    util::easy_query,
+};
 
 const SELECT_NAME: &'static str = include_str!("../sql/select_name.sql");
 const SELECT_LAST_TEN: &'static str = include_str!("../sql/select_last_ten.sql");
 const SELECT_MENTIONED_LAST_DATE: &'static str =
     include_str!("../sql/select_mentioned_last_date.sql");
 const INSERT_MENTIONED: &'static str = include_str!("../sql/insert_mentioned.sql");
-
-
-fn easy_select(conn: &Connection, query: &str, params: &[&dyn ToSql]) -> Result<Vec<Item>, Error> {
-    let mut statement = conn.prepare(query)?;
-    let results: Vec<Item> = statement
-        .query_map(params, |row| {
-            Ok(Item {
-                title: row.get_unwrap::<usize, String>(0),
-                guid: row.get_unwrap::<usize, String>(1),
-            })
-        })?
-        .map(|x| x.unwrap())
-        .collect();
-
-    Ok(results)
-}
 
 fn print_results(results: &Vec<Item>) {
     let mut counter = 1;
@@ -50,7 +37,7 @@ pub fn exec(search_text: String, conn: Connection) -> Result<(), Error> {
     println!("Searching for \"{}\"", search_text);
     let search_text = format!("%{}%", search_text);
 
-    let results = easy_select(&conn, &SELECT_NAME, params![search_text])?;
+    let results = easy_query(&conn, &SELECT_NAME, params![search_text])?;
     print_results(&results);
 
     if results.len() > 9 {
@@ -75,7 +62,7 @@ pub fn exec(search_text: String, conn: Connection) -> Result<(), Error> {
 
     let mentioned = &results[index - 1];
 
-    let results = easy_select(&conn, &SELECT_LAST_TEN, params![])?;
+    let results = easy_query(&conn, &SELECT_LAST_TEN, params![])?;
     print_results(&results);
 
     let index: usize = loop {
