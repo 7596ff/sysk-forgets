@@ -2,6 +2,7 @@ use std::io::Error as IoError;
 use std::num::ParseIntError;
 
 use chrono::format::ParseError as ChronoParseError;
+use rss::Error as RssError;
 use rusqlite::Error as RusqliteError;
 
 #[derive(Debug)]
@@ -10,6 +11,7 @@ pub enum Error {
     Rusqlite(RusqliteError),
     ParseInt(ParseIntError),
     ChronoParse(ChronoParseError),
+    Rss(RssError),
 }
 
 impl From<IoError> for Error {
@@ -33,5 +35,11 @@ impl From<ParseIntError> for Error {
 impl From<ChronoParseError> for Error {
     fn from(error: ChronoParseError) -> Self {
         Self::ChronoParse(error)
+    }
+}
+
+impl From<RssError> for Error {
+    fn from(error: RssError) -> Self {
+        Self::Rss(error)
     }
 }

@@ -36,7 +36,8 @@ fn main() -> Result<(), Error> {
             App::new("select")
                 .about("Select a term")
                 .arg(Arg::with_name("input").multiple(true)),
-        );
+        )
+        .subcommand(App::new("generate").about("Generate an RSS feed"));
 
     let matches = app.get_matches();
 
@@ -71,7 +72,7 @@ fn main() -> Result<(), Error> {
             } else {
                 Ok(())
             }
-        },
+        }
         Some("select") => {
             if let Some(search_matches) = matches.subcommand_matches("select") {
                 let search_text: Vec<&str> = search_matches.values_of("input").unwrap().collect();
@@ -80,6 +81,7 @@ fn main() -> Result<(), Error> {
                 Ok(())
             }
         }
+        Some("generate") => generate::exec(conn),
         _ => Ok(()),
     }
 }
