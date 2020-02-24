@@ -1,11 +1,8 @@
 use rusqlite::{params, Connection};
 
-use crate::{
-    error::Error,
-    util::easy_query,
-};
+use crate::{error::Error, util::easy_query};
 
-const SELECT_NAME: &'static str = include_str!("../sql/select_name.sql");
+const SELECT_NAME: &'static str = include_str!("../sql/search/select_name.sql");
 
 pub fn exec(search_text: String, conn: Connection) -> Result<(), Error> {
     println!("Searching for {}", search_text);

@@ -4,7 +4,7 @@ use rusqlite::{params, Connection};
 
 use crate::error::Error;
 
-const INSERT_ITEM: &'static str = include_str!("../sql/insert_item.sql");
+const INSERT_ITEM: &'static str = include_str!("../sql/sync/insert_item.sql");
 const STRFTIME: &str = "%a, %d %b %Y %H:%M:%S %z";
 
 pub fn exec(feed: &'static str, conn: Connection) -> Result<(), Error> {

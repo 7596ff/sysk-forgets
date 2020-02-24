@@ -1,18 +1,14 @@
 use chrono::{Datelike, NaiveDateTime, NaiveTime, Utc, Weekday};
 use dialoguer::Input;
-use rusqlite::{params, Connection, ToSql};
+use rusqlite::{params, Connection};
 
-use crate::{
-    error::Error,
-    model::Item,
-    util::easy_query,
-};
+use crate::{error::Error, model::Item, util::easy_query};
 
-const SELECT_NAME: &'static str = include_str!("../sql/select_name.sql");
-const SELECT_LAST_TEN: &'static str = include_str!("../sql/select_last_ten.sql");
+const SELECT_NAME: &'static str = include_str!("../sql/search/select_name.sql");
+const SELECT_LAST_TEN: &'static str = include_str!("../sql/select/last_ten.sql");
 const SELECT_MENTIONED_LAST_DATE: &'static str =
-    include_str!("../sql/select_mentioned_last_date.sql");
-const INSERT_MENTIONED: &'static str = include_str!("../sql/insert_mentioned.sql");
+    include_str!("../sql/select/mentioned_last_date.sql");
+const INSERT_MENTIONED: &'static str = include_str!("../sql/select/insert_mentioned.sql");
 
 fn print_results(results: &Vec<Item>) {
     let mut counter = 1;
@@ -109,7 +105,10 @@ pub fn exec(search_text: String, conn: Connection) -> Result<(), Error> {
         ],
     )?;
 
-    println!("\nInserted episode \"{}\", which was mentioned in episode \"{}\", to be published on {}", mentioned.title, contained.title, next_date);
+    println!(
+        "\nInserted episode \"{}\", which was mentioned in episode \"{}\", to be published on {}",
+        mentioned.title, contained.title, next_date
+    );
 
     Ok(())
 }

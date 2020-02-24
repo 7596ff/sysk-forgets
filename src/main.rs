@@ -9,12 +9,9 @@ use clap::{App, Arg};
 use directories::BaseDirs;
 use rusqlite::Connection;
 
-use crate::{
-    commands::*,
-    error::Error,
-};
+use crate::{commands::*, error::Error};
 
-const CREATE_DB: &'static str = include_str!("sql/create_db.sql");
+const CREATE_DB: &'static str = include_str!("sql/create/db.sql");
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";
 
 fn main() -> Result<(), Error> {
