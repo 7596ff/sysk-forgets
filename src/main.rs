@@ -67,8 +67,12 @@ fn main() -> Result<(), Error> {
         Some("sync") => sync::exec(&FEED_URL, conn),
         Some("search") => {
             if let Some(search_matches) = matches.subcommand_matches("search") {
-                let search_text: Vec<&str> = search_matches.values_of("input").unwrap().collect();
-                search::exec(search_text.join(" "), conn)
+                let search_text = match search_matches.values_of("input") {
+                    Some(input) => input.collect::<Vec<&str>>().join(" "),
+                    None => String::new(),
+                };
+
+                search::exec(search_text, conn)
             } else {
                 Ok(())
             }

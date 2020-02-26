@@ -1,11 +1,12 @@
+use std::process::exit;
+
 use chrono::{Datelike, NaiveDateTime, NaiveTime, Utc, Weekday};
-use dialoguer::Input;
 use rusqlite::{params, Connection};
+use essentials::prompt;
 
 use crate::{error::Error, model::Item, util::easy_query};
 
 const SELECT_NAME: &'static str = include_str!("../sql/search/select_name.sql");
-const SELECT_LAST_TEN: &'static str = include_str!("../sql/select/last_ten.sql");
 const SELECT_MENTIONED_LAST_DATE: &'static str =
     include_str!("../sql/select/mentioned_last_date.sql");
 const INSERT_MENTIONED: &'static str = include_str!("../sql/select/insert_mentioned.sql");
@@ -29,53 +30,51 @@ fn get_next_date(current: NaiveDateTime) -> NaiveDateTime {
     }
 }
 
-pub fn exec(search_text: String, conn: Connection) -> Result<(), Error> {
-    println!("Searching for \"{}\"", search_text);
-    let search_text = format!("%{}%", search_text);
+fn get_index_from_vec(results: &Vec<Item>) -> Result<usize, Error> {
+    loop {
+        let input = prompt("Please choose an index: ")?;
+        if let Ok(index) = input.trim().parse::<usize>() {
+            if index < 1 || index > results.len() + 1 {
+                println!("Please choose a number between 1 and {}.", results.len());
+                continue;
+            } else {
+                break Ok(index);
+            }
+        }
+    }
+}
 
-    let results = easy_query(&conn, &SELECT_NAME, params![search_text])?;
-    print_results(&results);
-
-    if results.len() > 9 {
-        println!("Too many results. Please narrow down your search.");
-        return Ok(());
+pub fn exec(mut search_text: String, conn: Connection) -> Result<(), Error> {
+    // prompt for a search if there is none
+    if search_text.is_empty() {
+        search_text = prompt("Please enter a mentioned episode name: ")?;
     }
 
-    let index: usize = loop {
-        let input = Input::<String>::new()
-            .with_prompt("Please choose an old episode")
-            .interact()?;
-
-        if let Ok(index) = input.parse::<usize>() {
-            if index < 1 || index > results.len() {
-                println!("Please choose a number between 1 and {}.", results.len());
-                continue;
-            } else {
-                break index;
-            }
-        }
-    };
-
-    let mentioned = &results[index - 1];
-
-    let results = easy_query(&conn, &SELECT_LAST_TEN, params![])?;
+    // search for a mentoined episode
+    search_text = format!("%{}%", search_text.trim());
+    let results = easy_query(&conn, &SELECT_NAME, params![search_text])?;
+    if results.len() == 0 {
+        println!("No results found.");
+        exit(1);
+    }
     print_results(&results);
 
-    let index: usize = loop {
-        let input = Input::<String>::new()
-            .with_prompt("Please choose a contained episode")
-            .interact()?;
+    // pick a mentioned result
+    let index = get_index_from_vec(&results)?;
+    let mentioned = &results[index - 1];
 
-        if let Ok(index) = input.parse::<usize>() {
-            if index < 1 || index > results.len() {
-                println!("Please choose a number between 1 and {}.", results.len());
-                continue;
-            } else {
-                break index;
-            }
-        }
-    };
+    // prompt and search for a coantained episode 
+    search_text = prompt("Please enter a contained episode name: ")?;
+    search_text = format!("%{}%", search_text.trim());
+    let results = easy_query(&conn, &SELECT_NAME, params![search_text])?;
+    if results.len() == 0 {
+        println!("No results found.");
+        exit(1);
+    }
+    print_results(&results);
 
+    // pick a contained result
+    let index = get_index_from_vec(&results)?;
     let contained = &results[index - 1];
 
     // get the last published date from the mentioned feed
@@ -83,17 +82,26 @@ pub fn exec(search_text: String, conn: Connection) -> Result<(), Error> {
     let results = statement.query_map(params![], |row| Ok(row.get::<usize, i64>(0)))?;
     let results: Vec<i64> = results.map(|i| i.unwrap().unwrap()).collect();
 
-    let last_date = if results.is_empty() {
-        NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0)
+    // pick a date that is after the last published date,
+    // and after today, 
+    // and not on tue/wed/thur/sat
+    let now = NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0);
+    let mut last_date = if results.is_empty() {
+        now
     } else {
         NaiveDateTime::from_timestamp(*results.first().unwrap(), 0)
     };
+
+    if last_date < now {
+        last_date = now;
+    }
 
     let next_date = get_next_date(NaiveDateTime::new(
         last_date.date().succ(),
         NaiveTime::from_hms(10, 0, 0),
     ));
 
+    // insert into database
     conn.execute(
         &INSERT_MENTIONED,
         params![
