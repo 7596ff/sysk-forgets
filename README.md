@@ -2,7 +2,7 @@
 
 This project downloads (`sync`s) the Stuff You Should Know RSS feed and stores it in a `search`able database. The user then `select`s an episode they heard mentioned, contained in the episode they heard it. Finally, the user `generate`s a RSS feed that can be imported into a podcast app as usual. 
 
-Full Help Text:
+Full help text:
 ```rust
 sysk-forgets 0.0.1
 Cassandra McCarthy <7596ff@gmail.com>
@@ -25,4 +25,6 @@ SUBCOMMANDS:
     select      Select a term
     sync        Download feed and upsert into database
 ```
+
+Add this RSS feed to your podcast app to automatically recieve the episodes that I deem interesting to listen to: `https://croagunk.7596ff.com/sysk-forgets.xml`
 
