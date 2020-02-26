@@ -63,8 +63,9 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
                     .to_string(),
             )
             .content(format!(
-                "<p>This episode was originally published on {}.</p> {}",
-                originally_published.format("%Y-%m-%d %H:%M:%S").to_string(),
+                "<p>This episode was originally published on {}. It was mentioned in the episode \"{}\".</p> {}",
+                originally_published.format("%Y-%m-%d").to_string(),
+                entry.contained_episode,
                 mentioned.content.unwrap().to_string()
             ))
             .build()
