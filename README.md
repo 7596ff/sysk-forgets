@@ -26,5 +26,4 @@ SUBCOMMANDS:
     sync        Download feed and upsert into database
 ```
 
-Add this RSS feed to your podcast app to automatically recieve the episodes that I deem interesting to listen to: `https://croagunk.7596ff.com/sysk-forgets.xml`
-
+Add this RSS feed to your podcast app to automatically recieve the episodes that I deem interesting to listen to: [https://croagunk.7596ff.com/sysk-forgets.xml](https://croagunk.7596ff.com/sysk-forgets.xml)
