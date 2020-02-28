@@ -38,6 +38,8 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
         let contained =
             easy_query(&conn, &SELECT_ITEM_BY_GUID, params![entry.contained_guid])?.remove(0);
 
+        let published = NaiveDateTime::from_timestamp(entry.pub_date, 0);
+
         let contained_pub_date = contained.pub_date.unwrap();
         let originally_published = NaiveDateTime::from_timestamp(contained_pub_date, 0);
 
@@ -58,7 +60,7 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
             .enclosure(enclosure)
             .guid(guid)
             .pub_date(
-                originally_published
+                published
                     .format("%a, %d %b %Y %H:%M:%S -0000")
                     .to_string(),
             )
