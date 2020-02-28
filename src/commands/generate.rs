@@ -35,13 +35,9 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
     for entry in entries {
         let mentioned =
             easy_query(&conn, &SELECT_ITEM_BY_GUID, params![entry.mentioned_guid])?.remove(0);
-        let contained =
-            easy_query(&conn, &SELECT_ITEM_BY_GUID, params![entry.contained_guid])?.remove(0);
+        let mentioned_pub_date = NaiveDateTime::from_timestamp(mentioned.pub_date.unwrap(), 0);
 
         let published = NaiveDateTime::from_timestamp(entry.pub_date, 0);
-
-        let contained_pub_date = contained.pub_date.unwrap();
-        let originally_published = NaiveDateTime::from_timestamp(contained_pub_date, 0);
 
         let enclosure = EnclosureBuilder::default()
             .url(mentioned.enclosure.unwrap())
@@ -51,7 +47,7 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
             .unwrap();
 
         let guid = GuidBuilder::default()
-            .value(&originally_published.timestamp().to_string())
+            .value(published.timestamp().to_string())
             .build()
             .unwrap();
 
@@ -66,7 +62,7 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
             )
             .content(format!(
                 "<p>This episode was originally published on {}. It was mentioned in the episode \"{}\".</p> {}",
-                originally_published.format("%Y-%m-%d").to_string(),
+                mentioned_pub_date.format("%Y-%m-%d").to_string(),
                 entry.contained_episode,
                 mentioned.content.unwrap().to_string()
             ))

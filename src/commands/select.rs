@@ -1,8 +1,8 @@
 use std::process::exit;
 
 use chrono::{Datelike, NaiveDateTime, NaiveTime, Utc, Weekday};
-use rusqlite::{params, Connection};
 use essentials::prompt;
+use rusqlite::{params, Connection};
 
 use crate::{error::Error, model::Item, util::easy_query};
 
@@ -50,7 +50,7 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<(), Error> {
         search_text = prompt("Please enter a mentioned episode name: ")?;
     }
 
-    // search for a mentoined episode
+    // search for a mentioned episode
     search_text = format!("%{}%", search_text.trim());
     let results = easy_query(&conn, &SELECT_NAME, params![search_text])?;
     if results.len() == 0 {
@@ -63,7 +63,7 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<(), Error> {
     let index = get_index_from_vec(&results)?;
     let mentioned = &results[index - 1];
 
-    // prompt and search for a coantained episode 
+    // prompt and search for a contained episode
     search_text = prompt("Please enter a contained episode name: ")?;
     search_text = format!("%{}%", search_text.trim());
     let results = easy_query(&conn, &SELECT_NAME, params![search_text])?;
@@ -83,7 +83,7 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<(), Error> {
     let results: Vec<i64> = results.map(|i| i.unwrap().unwrap()).collect();
 
     // pick a date that is after the last published date,
-    // and after today, 
+    // and after today,
     // and not on tue/wed/thur/sat
     let now = NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0);
     let mut last_date = if results.is_empty() {
