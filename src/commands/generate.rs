@@ -88,7 +88,16 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
         "xmlns:content=\"http://purl.org/rss/1.0/modules/content/\">"
     )?;
 
-    channel.pretty_write_to(handle, b' ', 4)?;
+    // need to remove the first line of pretty written rss, because it contains an extra <rss> tag
+    let buffer: Vec<u8> = vec![];
+    let buffer = channel.pretty_write_to(buffer, b' ', 4)?;
+    let buffer = String::from_utf8(buffer)?;
+
+    let mut buffer = buffer.lines();
+    let _ = buffer.next();
+    let buffer = buffer.collect::<Vec<&str>>().join("\n");
+
+    write!(handle, "{}", buffer)?;
 
     Ok(())
 }

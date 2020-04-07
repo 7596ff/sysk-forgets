@@ -1,5 +1,6 @@
 use std::io::Error as IoError;
 use std::num::ParseIntError;
+use std::string::FromUtf8Error;
 
 use chrono::format::ParseError as ChronoParseError;
 use rss::Error as RssError;
@@ -12,6 +13,7 @@ pub enum Error {
     ParseInt(ParseIntError),
     ChronoParse(ChronoParseError),
     Rss(RssError),
+    FromUtf8(FromUtf8Error),
 }
 
 impl From<IoError> for Error {
@@ -41,5 +43,11 @@ impl From<ChronoParseError> for Error {
 impl From<RssError> for Error {
     fn from(error: RssError) -> Self {
         Self::Rss(error)
+    }
+}
+
+impl From<FromUtf8Error> for Error {
+    fn from(error: FromUtf8Error) -> Self {
+        Self::FromUtf8(error)
     }
 }
