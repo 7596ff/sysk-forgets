@@ -1,8 +1,8 @@
 [package]
 name = "sysk-forgets"
 description = "Reads the Stuff You Should Know RSS feed and stores it in a sqlite database"
-version = "0.0.3"
-authors = ["Cassandra McCarthy <7596ff@gmail.com>"]
+version = "0.0.4-a"
+authors = ["Cassandra McCarthy <cassie@7596ff.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
