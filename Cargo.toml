@@ -11,8 +11,16 @@ clap = "2.33.0"
 directories = "2.0.2"
 http = "0.2.0"
 isahc = "0.9.1"
-rusqlite = "0.21.0"
+rusqlite = "0.23.0"
 vivian-essentials = "0.1.0"
+
+[dependencies.barrel]
+features = ["sqlite3"]
+version = "0.6.5"
+
+[dependencies.refinery]
+features = ["rusqlite"]
+version = "0.2.1"
 
 [dependencies.rss]
 version = "1.9.0"

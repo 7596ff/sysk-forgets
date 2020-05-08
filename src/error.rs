@@ -4,6 +4,7 @@ use std::string::FromUtf8Error;
 
 use chrono::format::ParseError as ChronoParseError;
 use isahc::Error as IsahcError;
+use refinery::Error as RefineryMigrationsError;
 use rss::Error as RssError;
 use rusqlite::Error as RusqliteError;
 
@@ -16,6 +17,7 @@ pub enum Error {
     Rss(RssError),
     FromUtf8(FromUtf8Error),
     Isahc(IsahcError),
+    RefineryMigrations(RefineryMigrationsError),
 }
 
 impl From<IoError> for Error {
@@ -57,5 +59,11 @@ impl From<FromUtf8Error> for Error {
 impl From<IsahcError> for Error {
     fn from(error: IsahcError) -> Self {
         Self::Isahc(error)
+    }
+}
+
+impl From<RefineryMigrationsError> for Error {
+    fn from(error: RefineryMigrationsError) -> Self {
+        Self::RefineryMigrations(error)
     }
 }

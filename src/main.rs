@@ -1,5 +1,6 @@
 pub mod commands;
 pub mod error;
+pub mod migrations;
 pub mod model;
 pub mod util;
 
@@ -12,7 +13,6 @@ use rusqlite::Connection;
 use commands::*;
 use error::Error;
 
-const CREATE_DB: &'static str = include_str!("sql/create/db.sql");
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";
 
 fn main() -> Result<(), Error> {
@@ -59,10 +59,11 @@ fn main() -> Result<(), Error> {
         }
     };
 
-    let conn = Connection::open(&database_location)?;
+    let mut conn = Connection::open(&database_location)?;
 
-    // initialize the database if empty
-    conn.execute_batch(&CREATE_DB)?;
+    migrations::runner()
+        .run(&mut conn)
+        .expect("failed to run migrations");
 
     match matches.subcommand_name() {
         Some("sync") => sync::exec(&FEED_URL, conn),
