@@ -1,7 +1,7 @@
-mod commands;
-mod error;
-mod model;
-mod util;
+pub mod commands;
+pub mod error;
+pub mod model;
+pub mod util;
 
 use std::{fs, path::PathBuf};
 
@@ -9,7 +9,8 @@ use clap::{App, Arg};
 use directories::BaseDirs;
 use rusqlite::Connection;
 
-use crate::{commands::*, error::Error};
+use commands::*;
+use error::Error;
 
 const CREATE_DB: &'static str = include_str!("sql/create/db.sql");
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";
