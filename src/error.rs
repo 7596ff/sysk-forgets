@@ -3,6 +3,7 @@ use std::num::ParseIntError;
 use std::string::FromUtf8Error;
 
 use chrono::format::ParseError as ChronoParseError;
+use isahc::Error as IsahcError;
 use rss::Error as RssError;
 use rusqlite::Error as RusqliteError;
 
@@ -14,6 +15,7 @@ pub enum Error {
     ChronoParse(ChronoParseError),
     Rss(RssError),
     FromUtf8(FromUtf8Error),
+    Isahc(IsahcError),
 }
 
 impl From<IoError> for Error {
@@ -49,5 +51,11 @@ impl From<RssError> for Error {
 impl From<FromUtf8Error> for Error {
     fn from(error: FromUtf8Error) -> Self {
         Self::FromUtf8(error)
+    }
+}
+
+impl From<IsahcError> for Error {
+    fn from(error: IsahcError) -> Self {
+        Self::Isahc(error)
     }
 }

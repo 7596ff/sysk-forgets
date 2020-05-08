@@ -79,6 +79,7 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
     let mut handle = out.lock();
 
     write!(handle, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")?;
+    #[rustfmt::skip]
     write!(handle, "{} {} {} {} {} {}\n",
         "<rss version=\"2.0\"",
         "xmlns:itunes=\"http://www.itunes.com/dtds/podcast-1.0.dtd\"",
