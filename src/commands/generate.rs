@@ -1,13 +1,11 @@
 use std::io::{self, Write};
 
+use anyhow::Error;
 use chrono::{NaiveDateTime, Utc};
 use rss::{ChannelBuilder, EnclosureBuilder, GuidBuilder, Item as RssItem, ItemBuilder};
 use rusqlite::{params, Connection};
 
-use crate::{
-    error::Error,
-    util::{easy_query, easy_query_entry},
-};
+use crate::util::{easy_query, easy_query_entry};
 
 const SELECT_ENTRIES: &'static str = include_str!("../sql/generate/select_entries.sql");
 const SELECT_ITEM_BY_GUID: &'static str = include_str!("../sql/generate/select_item_by_guid.sql");

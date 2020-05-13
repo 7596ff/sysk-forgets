@@ -6,6 +6,7 @@ authors = ["Cassandra McCarthy <cassie@7596ff.com>"]
 edition = "2018"
 
 [dependencies]
+anyhow = "1.0.28"
 chrono = "0.4.10"
 clap = "2.33.0"
 directories = "2.0.2"

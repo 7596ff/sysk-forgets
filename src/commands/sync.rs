@@ -1,10 +1,9 @@
+use anyhow::{Context, Error};
 use chrono::DateTime;
 use http::uri::Uri;
 use isahc::prelude::*;
 use rss::Channel;
 use rusqlite::{params, Connection};
-
-use crate::error::Error;
 
 const INSERT_ITEM: &'static str = include_str!("../sql/sync/insert_item.sql");
 const STRFTIME: &str = "%a, %d %b %Y %H:%M:%S %z";
@@ -13,7 +12,8 @@ pub fn exec(feed: &'static str, conn: Connection) -> Result<(), Error> {
     let response = isahc::get(Uri::from_static(feed))?.text()?;
     let data = response.as_bytes();
 
-    let channel = Channel::read_from(data)?;
+    let channel = Channel::read_from(data)
+        .context("could not read from rss feed")?;
 
     for item in channel.items().iter() {
         let title = item.title().unwrap_or_default();

@@ -1,9 +1,7 @@
+use anyhow::Error;
 use rusqlite::{Connection, ToSql};
 
-use crate::{
-    error::Error,
-    model::{Entry, Item},
-};
+use crate::model::{Entry, Item};
 
 pub fn easy_query(
     conn: &Connection,

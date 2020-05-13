@@ -1,17 +1,16 @@
 pub mod commands;
-pub mod error;
 pub mod migrations;
 pub mod model;
 pub mod util;
 
 use std::{fs, path::PathBuf};
 
+use anyhow::{Context, Error};
 use clap::{App, Arg};
 use directories::BaseDirs;
 use rusqlite::Connection;
 
 use commands::*;
-use error::Error;
 
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";
 
@@ -59,11 +58,12 @@ fn main() -> Result<(), Error> {
         }
     };
 
-    let mut conn = Connection::open(&database_location)?;
+    let mut conn = Connection::open(&database_location)
+        .context("failed to open database at location")?;
 
     migrations::runner()
         .run(&mut conn)
-        .expect("failed to run migrations");
+        .context("failed to run migrations")?;
 
     match matches.subcommand_name() {
         Some("sync") => sync::exec(&FEED_URL, conn),

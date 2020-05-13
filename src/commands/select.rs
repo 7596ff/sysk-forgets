@@ -1,10 +1,11 @@
 use std::process::exit;
 
+use anyhow::Error;
 use chrono::{Datelike, NaiveDateTime, NaiveTime, Utc, Weekday};
 use essentials::prompt;
 use rusqlite::{params, Connection};
 
-use crate::{error::Error, model::Item, util::easy_query};
+use crate::{model::Item, util::easy_query};
 
 const SELECT_NAME: &'static str = include_str!("../sql/search/select_name.sql");
 const SELECT_MENTIONED_LAST_DATE: &'static str =
@@ -33,6 +34,7 @@ fn get_next_date(current: NaiveDateTime) -> NaiveDateTime {
 fn get_index_from_vec(results: &Vec<Item>) -> Result<usize, Error> {
     loop {
         let input = prompt("Please choose an index: ")?;
+
         if let Ok(index) = input.trim().parse::<usize>() {
             if index < 1 || index > results.len() + 1 {
                 println!("Please choose a number between 1 and {}.", results.len());
