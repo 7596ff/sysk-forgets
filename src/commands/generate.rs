@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::{self, Write};
 
 use anyhow::Error;
@@ -27,6 +28,26 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
         .language("en".to_string())
         .build()
         .unwrap();
+
+    // add namespaces
+    let mut namespaces: HashMap<String, String> = HashMap::new();
+
+    namespaces.insert(
+        "itunes".into(),
+        "http://www.itunes.com/dtds/podcast-1.0.dtd".into(),
+    );
+    namespaces.insert(
+        "googleplay".into(),
+        "http://www.google.com/schemas/play-podcasts/1.0".into(),
+    );
+    namespaces.insert("atom".into(), "http://www.w3.org/2005/Atom".into());
+    namespaces.insert("media".into(), "http://search.yahoo.com/mrss/".into());
+    namespaces.insert(
+        "content".into(),
+        "http://purl.org/rss/1.0/modules/content/".into(),
+    );
+
+    channel.set_namespaces(namespaces);
 
     // get mentioned episode metadata, and add it to a list of items
     let mut items: Vec<RssItem> = vec![];
@@ -77,26 +98,7 @@ pub fn exec(conn: Connection) -> Result<(), Error> {
     let mut handle = out.lock();
 
     write!(handle, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")?;
-    #[rustfmt::skip]
-    write!(handle, "{} {} {} {} {} {}\n",
-        "<rss version=\"2.0\"",
-        "xmlns:itunes=\"http://www.itunes.com/dtds/podcast-1.0.dtd\"",
-        "xmlns:googleplay=\"http://www.google.com/schemas/play-podcasts/1.0\"",
-        "xmlns:atom=\"http://www.w3.org/2005/Atom\"",
-        "xmlns:media=\"http://search.yahoo.com/mrss/\"",
-        "xmlns:content=\"http://purl.org/rss/1.0/modules/content/\">"
-    )?;
-
-    // need to remove the first line of pretty written rss, because it contains an extra <rss> tag
-    let buffer: Vec<u8> = vec![];
-    let buffer = channel.pretty_write_to(buffer, b' ', 4)?;
-    let buffer = String::from_utf8(buffer)?;
-
-    let mut buffer = buffer.lines();
-    let _ = buffer.next();
-    let buffer = buffer.collect::<Vec<&str>>().join("\n");
-
-    write!(handle, "{}", buffer)?;
+    channel.pretty_write_to(handle, b' ', 4)?;
 
     Ok(())
 }
