@@ -5,16 +5,14 @@ pub mod util;
 
 use std::{fs, path::PathBuf};
 
-use anyhow::{Context, Error};
+use anyhow::{Context, Result};
 use clap::{App, Arg};
 use directories::BaseDirs;
 use rusqlite::Connection;
 
-use commands::*;
-
 const FEED_URL: &'static str = "https://feeds.megaphone.fm/stuffyoushouldknow";
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<()> {
     let app = App::new(clap::crate_name!())
         .about(clap::crate_description!())
         .author(clap::crate_authors!())
@@ -26,7 +24,7 @@ fn main() -> Result<(), Error> {
                 .value_name("FILE")
                 .takes_value(true),
         )
-        .subcommand(App::new("sync").about("Download feed and upsert into database"))
+        .subcommand(App::new("generate").about("Generate an RSS feed"))
         .subcommand(
             App::new("search")
                 .about("Search for a term")
@@ -37,7 +35,7 @@ fn main() -> Result<(), Error> {
                 .about("Select a term")
                 .arg(Arg::with_name("input").multiple(true)),
         )
-        .subcommand(App::new("generate").about("Generate an RSS feed"));
+        .subcommand(App::new("sync").about("Download feed and upsert into database"));
 
     let matches = app.get_matches();
 
@@ -58,40 +56,36 @@ fn main() -> Result<(), Error> {
         }
     };
 
-    let mut conn = Connection::open(&database_location)
-        .context("failed to open database at location")?;
+    let mut conn =
+        Connection::open(&database_location).context("failed to open database at location")?;
 
     migrations::runner()
         .run(&mut conn)
         .context("failed to run migrations")?;
 
     match matches.subcommand_name() {
-        Some("sync") => sync::exec(&FEED_URL, conn),
-        Some("search") => {
-            if let Some(search_matches) = matches.subcommand_matches("search") {
-                let search_text = match search_matches.values_of("input") {
+        Some("generate") => commands::generate(conn),
+        Some("search") => match matches.subcommand_matches("search") {
+            Some(matches) => commands::search(
+                match matches.values_of("input") {
                     Some(input) => input.collect::<Vec<&str>>().join(" "),
                     None => String::new(),
-                };
-
-                search::exec(search_text, conn)
-            } else {
-                Ok(())
-            }
-        }
-        Some("select") => {
-            if let Some(search_matches) = matches.subcommand_matches("select") {
-                let search_text = match search_matches.values_of("input") {
+                },
+                conn,
+            ),
+            None => Ok(()),
+        },
+        Some("select") => match matches.subcommand_matches("select") {
+            Some(matches) => commands::select(
+                match matches.values_of("input") {
                     Some(input) => input.collect::<Vec<&str>>().join(" "),
                     None => String::new(),
-                };
-
-                select::exec(search_text, conn)
-            } else {
-                Ok(())
-            }
-        }
-        Some("generate") => generate::exec(conn),
+                },
+                conn,
+            ),
+            None => Ok(()),
+        },
+        Some("sync") => commands::sync(&FEED_URL, conn),
         _ => Ok(()),
     }
 }

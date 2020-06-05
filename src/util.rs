@@ -1,13 +1,9 @@
-use anyhow::Error;
+use anyhow::Result;
 use rusqlite::{Connection, ToSql};
 
 use crate::model::{Entry, Item};
 
-pub fn easy_query(
-    conn: &Connection,
-    query: &str,
-    params: &[&dyn ToSql],
-) -> Result<Vec<Item>, Error> {
+pub fn easy_query(conn: &Connection, query: &str, params: &[&dyn ToSql]) -> Result<Vec<Item>> {
     let mut statement = conn.prepare(&query)?;
     let results: Vec<Item> = statement
         .query_map(params, |row| {
@@ -29,7 +25,7 @@ pub fn easy_query_entry(
     conn: &Connection,
     query: &str,
     params: &[&dyn ToSql],
-) -> Result<Vec<Entry>, Error> {
+) -> Result<Vec<Entry>> {
     let mut statement = conn.prepare(&query)?;
     let results: Vec<Entry> = statement
         .query_map(params, |row| {

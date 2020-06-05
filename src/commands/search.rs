@@ -1,11 +1,11 @@
-use anyhow::Error;
+use anyhow::Result;
 use rusqlite::{params, Connection};
 
 use crate::util::easy_query;
 
 const SELECT_NAME: &'static str = include_str!("../sql/search/select_name.sql");
 
-pub fn exec(search_text: String, conn: Connection) -> Result<(), Error> {
+pub fn exec(search_text: String, conn: Connection) -> Result<()> {
     println!("Searching for {}", search_text);
     let search_text = format!("%{}%", search_text);
 

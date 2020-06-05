@@ -1,6 +1,6 @@
 use std::process::exit;
 
-use anyhow::Error;
+use anyhow::Result;
 use chrono::{Datelike, NaiveDateTime, NaiveTime, Utc, Weekday};
 use essentials::prompt;
 use rusqlite::{params, Connection};
@@ -31,7 +31,7 @@ fn get_next_date(current: NaiveDateTime) -> NaiveDateTime {
     }
 }
 
-fn get_index_from_vec(results: &Vec<Item>) -> Result<usize, Error> {
+fn get_index_from_vec(results: &Vec<Item>) -> Result<usize> {
     loop {
         let input = prompt("Please choose an index: ")?;
 
@@ -46,7 +46,7 @@ fn get_index_from_vec(results: &Vec<Item>) -> Result<usize, Error> {
     }
 }
 
-pub fn exec(mut search_text: String, conn: Connection) -> Result<(), Error> {
+pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
     // prompt for a search if there is none
     if search_text.is_empty() {
         search_text = prompt("Please enter a mentioned episode name: ")?;

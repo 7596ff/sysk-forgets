@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::io::{self, Write};
 
-use anyhow::Error;
+use anyhow::Result;
 use chrono::{NaiveDateTime, Utc};
 use rss::{ChannelBuilder, EnclosureBuilder, GuidBuilder, Item as RssItem, ItemBuilder};
 use rusqlite::{params, Connection};
@@ -11,7 +11,7 @@ use crate::util::{easy_query, easy_query_entry};
 const SELECT_ENTRIES: &'static str = include_str!("../sql/generate/select_entries.sql");
 const SELECT_ITEM_BY_GUID: &'static str = include_str!("../sql/generate/select_item_by_guid.sql");
 
-pub fn exec(conn: Connection) -> Result<(), Error> {
+pub fn exec(conn: Connection) -> Result<()> {
     let now = Utc::now().timestamp();
 
     // get list of entries from mentioned_items and filter out any future events
