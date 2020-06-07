@@ -1,7 +1,6 @@
 pub mod commands;
 pub mod migrations;
 pub mod model;
-pub mod util;
 
 use std::{fs, path::PathBuf};
 

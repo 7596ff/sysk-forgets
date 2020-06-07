@@ -5,7 +5,7 @@ use chrono::{Datelike, NaiveDateTime, NaiveTime, Utc, Weekday};
 use essentials::prompt;
 use rusqlite::{params, Connection};
 
-use crate::{model::Item, util::easy_query};
+use crate::model::Item;
 
 fn print_results(results: &Vec<Item>) {
     let mut counter = 1;
@@ -49,11 +49,14 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
 
     // search for a mentioned episode
     search_text = format!("%{}%", search_text.trim());
-    let results = easy_query(
-        &conn,
-        "SELECT title, guid FROM items WHERE title LIKE ?1 COLLATE NOCASE;",
-        params![search_text],
-    )?;
+
+    let mut stmt = conn.prepare("SELECT * FROM items WHERE title LIKE ?1 COLLATE NOCASE;")?;
+    let mut rows = stmt.query(params![search_text])?;
+
+    let mut results = Vec::new();
+    while let Some(row) = rows.next()? {
+        results.push(Item::from(row));
+    }
 
     if results.len() == 0 {
         println!("No results found.");
@@ -68,11 +71,13 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
     // prompt and search for a contained episode
     search_text = prompt("Please enter a contained episode name: ")?;
     search_text = format!("%{}%", search_text.trim());
-    let results = easy_query(
-        &conn,
-        "SELECT title, guid FROM items WHERE title LIKE ?1 COLLATE NOCASE;",
-        params![search_text],
-    )?;
+
+    let mut statement = conn.prepare("SELECT * FROM items WHERE title LIKE ?1 COLLATE NOCASE;")?;
+    let mut rows = statement.query(params![search_text])?;
+    let mut results = Vec::new();
+    while let Some(row) = rows.next()? {
+        results.push(Item::from(row));
+    }
 
     if results.len() == 0 {
         println!("No results found.");

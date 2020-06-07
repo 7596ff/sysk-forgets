@@ -3,21 +3,24 @@ use std::io::{self, Write};
 
 use anyhow::Result;
 use chrono::{NaiveDateTime, Utc};
-use rss::{ChannelBuilder, EnclosureBuilder, GuidBuilder, Item as RssItem, ItemBuilder};
+use rss::{ChannelBuilder, EnclosureBuilder, GuidBuilder, ItemBuilder};
 use rusqlite::{params, Connection};
 
-use crate::util::{easy_query, easy_query_entry};
+use crate::model::{Entry, Item};
 
 pub fn exec(conn: Connection) -> Result<()> {
     let now = Utc::now().timestamp();
 
-    // get list of entries from mentioned_items and filter out any future events
-    let entries = easy_query_entry(
-        &conn,
-        "SELECT * FROM mentioned_items ORDER BY pub_date DESC;",
-        params![],
-    )?;
-    let entries = entries.iter().filter(|x| x.pub_date < now);
+    let mut stmt = conn.prepare("SELECT * FROM mentioned_items ORDER BY pub_date DESC;")?;
+    let mut rows = stmt.query(params![])?;
+
+    let mut entries = Vec::new();
+    while let Some(row) = rows.next()? {
+        let entry = Entry::from(row);
+        if entry.pub_date < now {
+            entries.push(entry);
+        }
+    }
 
     // form the rss feed
     let mut channel = ChannelBuilder::default()
@@ -51,20 +54,17 @@ pub fn exec(conn: Connection) -> Result<()> {
     channel.set_namespaces(namespaces);
 
     // get mentioned episode metadata, and add it to a list of items
-    let mut items: Vec<RssItem> = vec![];
+    let mut items = Vec::new();
     for entry in entries {
-        let mentioned = easy_query(
-            &conn,
-            "SELECT * FROM items WHERE guild = ?1;",
-            params![entry.mentioned_guid],
-        )?
-        .remove(0);
+        let mut stmt = conn.prepare("SELECT * FROM items WHERE guid = ?1 LIMIT 1;")?;
+        let mut rows = stmt.query(params![entry.mentioned_guid])?;
+        let mentioned = Item::from(rows.next()?.unwrap());
 
-        let mentioned_pub_date = NaiveDateTime::from_timestamp(mentioned.pub_date.unwrap(), 0);
+        let mentioned_pub_date = NaiveDateTime::from_timestamp(mentioned.pub_date, 0);
         let published = NaiveDateTime::from_timestamp(entry.pub_date, 0);
 
         let enclosure = EnclosureBuilder::default()
-            .url(mentioned.enclosure.unwrap())
+            .url(mentioned.enclosure)
             .length("0")
             .mime_type("audio/mpeg")
             .build()
@@ -88,7 +88,7 @@ pub fn exec(conn: Connection) -> Result<()> {
                 "<p>This episode was originally published on {}. It was mentioned in the episode \"{}\".</p> {}",
                 mentioned_pub_date.format("%Y-%m-%d").to_string(),
                 entry.contained_episode,
-                mentioned.content.unwrap().to_string()
+                mentioned.content.to_string()
             ))
             .build()
             .unwrap();
