@@ -5,7 +5,6 @@ use isahc::prelude::*;
 use rss::Channel;
 use rusqlite::{params, Connection};
 
-const INSERT_ITEM: &'static str = include_str!("../sql/sync/insert_item.sql");
 const STRFTIME: &str = "%a, %d %b %Y %H:%M:%S %z";
 
 pub fn exec(feed: &'static str, conn: Connection) -> Result<()> {
@@ -31,7 +30,10 @@ pub fn exec(feed: &'static str, conn: Connection) -> Result<()> {
         let pub_date = DateTime::parse_from_str(&pub_date, &STRFTIME)?;
 
         conn.execute(
-            &INSERT_ITEM,
+            "INSERT OR REPLACE INTO items (
+                title, pub_date, itunes_author, itunes_image, itunes_subtitle,
+                itunes_summary, content, itunes_duration, guid, enclosure
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);",
             params![
                 title,
                 pub_date.timestamp(),

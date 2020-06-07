@@ -8,14 +8,15 @@ use rusqlite::{params, Connection};
 
 use crate::util::{easy_query, easy_query_entry};
 
-const SELECT_ENTRIES: &'static str = include_str!("../sql/generate/select_entries.sql");
-const SELECT_ITEM_BY_GUID: &'static str = include_str!("../sql/generate/select_item_by_guid.sql");
-
 pub fn exec(conn: Connection) -> Result<()> {
     let now = Utc::now().timestamp();
 
     // get list of entries from mentioned_items and filter out any future events
-    let entries = easy_query_entry(&conn, &SELECT_ENTRIES, params![])?;
+    let entries = easy_query_entry(
+        &conn,
+        "SELECT * FROM mentioned_items ORDER BY pub_date DESC;",
+        params![],
+    )?;
     let entries = entries.iter().filter(|x| x.pub_date < now);
 
     // form the rss feed
@@ -52,10 +53,14 @@ pub fn exec(conn: Connection) -> Result<()> {
     // get mentioned episode metadata, and add it to a list of items
     let mut items: Vec<RssItem> = vec![];
     for entry in entries {
-        let mentioned =
-            easy_query(&conn, &SELECT_ITEM_BY_GUID, params![entry.mentioned_guid])?.remove(0);
-        let mentioned_pub_date = NaiveDateTime::from_timestamp(mentioned.pub_date.unwrap(), 0);
+        let mentioned = easy_query(
+            &conn,
+            "SELECT * FROM items WHERE guild = ?1;",
+            params![entry.mentioned_guid],
+        )?
+        .remove(0);
 
+        let mentioned_pub_date = NaiveDateTime::from_timestamp(mentioned.pub_date.unwrap(), 0);
         let published = NaiveDateTime::from_timestamp(entry.pub_date, 0);
 
         let enclosure = EnclosureBuilder::default()

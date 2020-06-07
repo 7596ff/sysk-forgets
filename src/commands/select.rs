@@ -7,11 +7,6 @@ use rusqlite::{params, Connection};
 
 use crate::{model::Item, util::easy_query};
 
-const SELECT_NAME: &'static str = include_str!("../sql/search/select_name.sql");
-const SELECT_MENTIONED_LAST_DATE: &'static str =
-    include_str!("../sql/select/mentioned_last_date.sql");
-const INSERT_MENTIONED: &'static str = include_str!("../sql/select/insert_mentioned.sql");
-
 fn print_results(results: &Vec<Item>) {
     let mut counter = 1;
     for result in results {
@@ -54,7 +49,12 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
 
     // search for a mentioned episode
     search_text = format!("%{}%", search_text.trim());
-    let results = easy_query(&conn, &SELECT_NAME, params![search_text])?;
+    let results = easy_query(
+        &conn,
+        "SELECT title, guid FROM items WHERE title LIKE ?1 COLLATE NOCASE;",
+        params![search_text],
+    )?;
+
     if results.len() == 0 {
         println!("No results found.");
         exit(1);
@@ -68,7 +68,12 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
     // prompt and search for a contained episode
     search_text = prompt("Please enter a contained episode name: ")?;
     search_text = format!("%{}%", search_text.trim());
-    let results = easy_query(&conn, &SELECT_NAME, params![search_text])?;
+    let results = easy_query(
+        &conn,
+        "SELECT title, guid FROM items WHERE title LIKE ?1 COLLATE NOCASE;",
+        params![search_text],
+    )?;
+
     if results.len() == 0 {
         println!("No results found.");
         exit(1);
@@ -80,7 +85,8 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
     let contained = &results[index - 1];
 
     // get the last published date from the mentioned feed
-    let mut statement = conn.prepare(&SELECT_MENTIONED_LAST_DATE)?;
+    let mut statement =
+        conn.prepare("SELECT pub_date FROM mentioned_items ORDER BY pub_date DESC LIMIT 1;")?;
     let results = statement.query_map(params![], |row| Ok(row.get::<usize, i64>(0)))?;
     let results: Vec<i64> = results.map(|i| i.unwrap().unwrap()).collect();
 
@@ -105,7 +111,10 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
 
     // insert into database
     conn.execute(
-        &INSERT_MENTIONED,
+        "INSERT OR REPLACE INTO mentioned_items (
+            mentioned_title, mentioned_guid, contained_episode,
+            contained_guid, pub_date
+        ) VALUES ( ?1, ?2, ?3, ?4, ?5 );",
         params![
             mentioned.title,
             mentioned.guid,
