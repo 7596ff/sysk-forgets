@@ -12,6 +12,12 @@ pub fn exec(feed: &'static str, conn: Connection) -> Result<()> {
     let data = response.as_bytes();
 
     let channel = Channel::read_from(data).context("could not read from rss feed")?;
+    let mut stmt = conn.prepare(
+        "INSERT OR REPLACE INTO items (
+             title, pub_date, itunes_author, itunes_image, itunes_subtitle,
+             itunes_summary, content, itunes_duration, guid, enclosure
+         ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);",
+    )?;
 
     for item in channel.items().iter() {
         let title = item.title().unwrap_or_default();
@@ -29,24 +35,18 @@ pub fn exec(feed: &'static str, conn: Connection) -> Result<()> {
 
         let pub_date = DateTime::parse_from_str(&pub_date, &STRFTIME)?;
 
-        conn.execute(
-            "INSERT OR REPLACE INTO items (
-                title, pub_date, itunes_author, itunes_image, itunes_subtitle,
-                itunes_summary, content, itunes_duration, guid, enclosure
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10);",
-            params![
-                title,
-                pub_date.timestamp(),
-                author,
-                image,
-                subtitle,
-                summary,
-                content,
-                duration,
-                guid,
-                enclosure
-            ],
-        )?;
+        stmt.execute(params![
+            title,
+            pub_date.timestamp(),
+            author,
+            image,
+            subtitle,
+            summary,
+            content,
+            duration,
+            guid,
+            enclosure
+        ])?;
     }
 
     println!("Added or updated {} feed items.", channel.items().len());
