@@ -1,6 +1,7 @@
-pub mod commands;
-pub mod migrations;
-pub mod model;
+mod commands;
+mod migrations;
+mod model;
+mod util;
 
 use std::{fs, path::PathBuf};
 
@@ -66,25 +67,25 @@ fn main() -> Result<()> {
         Some("generate") => commands::generate(conn),
         Some("search") => match matches.subcommand_matches("search") {
             Some(matches) => commands::search(
+                conn,
                 match matches.values_of("input") {
                     Some(input) => input.collect::<Vec<&str>>().join(" "),
                     None => String::new(),
                 },
-                conn,
             ),
             None => Ok(()),
         },
         Some("select") => match matches.subcommand_matches("select") {
             Some(matches) => commands::select(
+                conn,
                 match matches.values_of("input") {
                     Some(input) => input.collect::<Vec<&str>>().join(" "),
                     None => String::new(),
                 },
-                conn,
             ),
             None => Ok(()),
         },
-        Some("sync") => commands::sync(&FEED_URL, conn),
+        Some("sync") => commands::sync(conn, &FEED_URL),
         _ => Ok(()),
     }
 }

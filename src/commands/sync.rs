@@ -7,7 +7,7 @@ use rusqlite::{params, Connection};
 
 const STRFTIME: &str = "%a, %d %b %Y %H:%M:%S %z";
 
-pub fn exec(feed: &'static str, conn: Connection) -> Result<()> {
+pub fn exec(conn: Connection, feed: &'static str) -> Result<()> {
     let response = isahc::get(Uri::from_static(feed))?.text()?;
     let data = response.as_bytes();
 

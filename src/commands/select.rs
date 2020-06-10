@@ -5,19 +5,7 @@ use chrono::{Datelike, NaiveDateTime, NaiveTime, Utc, Weekday};
 use essentials::prompt;
 use rusqlite::{params, Connection};
 
-use crate::model::Item;
-
-fn print_results(results: &Vec<Item>) {
-    let mut counter = 1;
-    for result in results {
-        if counter == 1 {
-            println!("");
-        }
-
-        println!("[{}] {}", counter, result.title);
-        counter += 1;
-    }
-}
+use crate::{model::Item, util};
 
 fn get_next_date(current: NaiveDateTime) -> NaiveDateTime {
     match current.weekday() {
@@ -41,7 +29,7 @@ fn get_index_from_vec(results: &Vec<Item>) -> Result<usize> {
     }
 }
 
-pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
+pub fn exec(conn: Connection, mut search_text: String) -> Result<()> {
     // prompt for a search if there is none
     if search_text.is_empty() {
         search_text = prompt("Please enter a mentioned episode name: ")?;
@@ -49,20 +37,13 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
 
     // search for a mentioned episode
     search_text = format!("%{}%", search_text.trim());
-
-    let mut stmt = conn.prepare("SELECT * FROM items WHERE title LIKE ?1 COLLATE NOCASE;")?;
-    let mut rows = stmt.query(params![search_text])?;
-
-    let mut results = Vec::new();
-    while let Some(row) = rows.next()? {
-        results.push(Item::from(row));
-    }
+    let results = util::search(&conn, search_text)?;
 
     if results.len() == 0 {
         println!("No results found.");
         exit(1);
     }
-    print_results(&results);
+    util::print_items(&results);
 
     // pick a mentioned result
     let index = get_index_from_vec(&results)?;
@@ -71,19 +52,13 @@ pub fn exec(mut search_text: String, conn: Connection) -> Result<()> {
     // prompt and search for a contained episode
     search_text = prompt("Please enter a contained episode name: ")?;
     search_text = format!("%{}%", search_text.trim());
-
-    let mut statement = conn.prepare("SELECT * FROM items WHERE title LIKE ?1 COLLATE NOCASE;")?;
-    let mut rows = statement.query(params![search_text])?;
-    let mut results = Vec::new();
-    while let Some(row) = rows.next()? {
-        results.push(Item::from(row));
-    }
+    let results = util::search(&conn, search_text)?;
 
     if results.len() == 0 {
         println!("No results found.");
         exit(1);
     }
-    print_results(&results);
+    util::print_items(&results);
 
     // pick a contained result
     let index = get_index_from_vec(&results)?;

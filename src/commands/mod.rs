@@ -1,7 +1,7 @@
-pub mod generate;
-pub mod search;
-pub mod select;
-pub mod sync;
+mod generate;
+mod search;
+mod select;
+mod sync;
 
 pub use generate::exec as generate;
 pub use search::exec as search;
