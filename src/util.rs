@@ -24,7 +24,12 @@ pub fn print_items(items: &Vec<Item>) {
     let mut count = 1;
     for item in items {
         let pub_date = NaiveDateTime::from_timestamp(item.pub_date, 0);
-        println!("{} [{:>4}] {}", pub_date.format("%Y-%m-%d"), count, item.title);
+        println!(
+            "{} [{:>4}] {}",
+            pub_date.format("%Y-%m-%d"),
+            count,
+            item.title
+        );
         count += 1;
     }
 }

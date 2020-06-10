@@ -25,6 +25,7 @@ fn main() -> Result<()> {
                 .takes_value(true),
         )
         .subcommand(App::new("generate").about("Generate an RSS feed"))
+        .subcommand(App::new("queue").about("Show upcoming and previous episodes"))
         .subcommand(
             App::new("search")
                 .about("Search for a term")
@@ -65,6 +66,7 @@ fn main() -> Result<()> {
 
     match matches.subcommand_name() {
         Some("generate") => commands::generate(conn),
+        Some("queue") => commands::queue(conn),
         Some("search") => match matches.subcommand_matches("search") {
             Some(matches) => commands::search(
                 conn,
