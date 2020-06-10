@@ -1,9 +1,12 @@
 [package]
 name = "sysk-forgets"
 description = "Reads the Stuff You Should Know RSS feed and stores it in a sqlite database"
-version = "0.0.4-a"
+version = "0.1.0"
 authors = ["Cassandra McCarthy <cassie@7596ff.com>"]
 edition = "2018"
+homepage = "https://github.com/7596ff/sysk-forgets"
+repository = "https://github.com/7596ff/sysk-forgets"
+license-file = "LICENSE"
 
 [dependencies]
 anyhow = { version = "1.0.28", default-features = false, features = [ "std" ] }
