@@ -58,7 +58,10 @@ pub fn exec(conn: Connection) -> Result<()> {
     for entry in entries {
         let mut stmt = conn.prepare("SELECT * FROM items WHERE guid = ?1 LIMIT 1;")?;
         let mut rows = stmt.query(params![entry.mentioned_guid])?;
-        let mentioned = Item::from(rows.next()?.unwrap());
+        let mentioned = match rows.next()? {
+            Some(item) => Item::from(item),
+            None => continue,
+        };
 
         let mentioned_pub_date = NaiveDateTime::from_timestamp(mentioned.pub_date, 0);
         let published = NaiveDateTime::from_timestamp(entry.pub_date, 0);
