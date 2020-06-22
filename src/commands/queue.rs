@@ -16,7 +16,7 @@ pub fn exec(conn: Connection) -> Result<()> {
         entries.push(Entry::from(row));
     }
 
-    for entry in entries {
+    for entry in entries.iter().rev() {
         let pub_date = NaiveDateTime::from_timestamp(entry.pub_date, 0).format("%Y-%m-%d");
         let line = format!(
             "{} \"{}\" mentioned in \"{}\"",
