@@ -2,33 +2,14 @@
 
 # sysk-forgets
 
-This project downloads (`sync`s) the Stuff You Should Know RSS feed and stores it in a `search`able database. The user then `select`s an episode they heard mentioned, contained in the episode they heard it. Finally, the user `generate`s a RSS feed that can be imported into a podcast app as usual. 
+This project downloads (`sync`s) the Stuff You Should Know RSS feed and stores it in a `search`able
+database. The user then `select`s an episode they heard mentioned, contained in the episode they
+heard it. A `queue` of published and upcoming episodes can be viewed. Finally, the user `generate`s
+a RSS feed that can be imported into a podcast app as usual.
 
-Full help text:
-```rust
-sysk-forgets 0.0.1
-Cassandra McCarthy <7596ff@gmail.com>
-Reads the Stuff You Should Know RSS feed and stores it in a sqlite database
-
-USAGE:
-    sysk-forgets [OPTIONS] [SUBCOMMAND]
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-    -d, --database <FILE>    
-
-SUBCOMMANDS:
-    generate    Generate an RSS feed
-    help        Prints this message or the help of the given subcommand(s)
-    search      Search for a term
-    select      Select a term
-    sync        Download feed and upsert into database
-```
-
-Add this RSS feed to your podcast app to automatically recieve the episodes that I deem interesting to listen to: [https://croagunk.7596ff.com/sysk-forgets.xml](https://croagunk.7596ff.com/sysk-forgets.xml)
+Add this RSS feed to your podcast app to automatically receive the episodes that I deem interesting
+to listen to:
+[https://croagunk.7596ff.com/sysk-forgets.xml](https://croagunk.7596ff.com/sysk-forgets.xml)
 
 # License
 
