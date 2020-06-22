@@ -16,15 +16,15 @@ pub struct Item {
 impl From<&Row<'_>> for Item {
     fn from(row: &Row) -> Self {
         Item {
-            title: row.get_unwrap::<usize, String>(0),
-            pub_date: row.get_unwrap::<usize, i64>(1),
-            itunes_author: row.get_unwrap::<usize, String>(2),
-            itunes_image: row.get_unwrap::<usize, String>(3),
-            itunes_subtitle: row.get_unwrap::<usize, String>(4),
-            content: row.get_unwrap::<usize, String>(5),
-            itunes_duration: row.get_unwrap::<usize, String>(6),
-            guid: row.get_unwrap::<usize, String>(7),
-            enclosure: row.get_unwrap::<usize, String>(8),
+            title: row.get_unwrap::<&str, String>("title"),
+            pub_date: row.get_unwrap::<&str, i64>("pub_date"),
+            itunes_author: row.get_unwrap::<&str, String>("itunes_author"),
+            itunes_image: row.get_unwrap::<&str, String>("itunes_image"),
+            itunes_subtitle: row.get_unwrap::<&str, String>("itunes_subtitle"),
+            content: row.get_unwrap::<&str, String>("content"),
+            itunes_duration: row.get_unwrap::<&str, String>("itunes_duration"),
+            guid: row.get_unwrap::<&str, String>("guid"),
+            enclosure: row.get_unwrap::<&str, String>("enclosure"),
         }
     }
 }
@@ -41,11 +41,11 @@ pub struct Entry {
 impl From<&Row<'_>> for Entry {
     fn from(row: &Row) -> Self {
         Entry {
-            mentioned_title: row.get_unwrap::<usize, String>(0),
-            mentioned_guid: row.get_unwrap::<usize, String>(1),
-            contained_episode: row.get_unwrap::<usize, String>(2),
-            contained_guid: row.get_unwrap::<usize, String>(3),
-            pub_date: row.get_unwrap::<usize, i64>(4),
+            mentioned_title: row.get_unwrap::<&str, String>("mentioned_title"),
+            mentioned_guid: row.get_unwrap::<&str, String>("mentioned_guid"),
+            contained_episode: row.get_unwrap::<&str, String>("contained_episode"),
+            contained_guid: row.get_unwrap::<&str, String>("contained_guid"),
+            pub_date: row.get_unwrap::<&str, i64>("pub_date"),
         }
     }
 }
