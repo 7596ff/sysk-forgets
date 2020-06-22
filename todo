@@ -2,6 +2,7 @@ x 2020-02-24 2020-02-22 refactor the sql directory to sort by file's actions
 x 2020-02-24 2020-02-22 finish writing generate.rs when my brain works
 x 2020-02-25 2020-02-24 make generate.rs generate a real rss feed and not a shell
 x 2020-05-08 2020-04-12 need better migration solution
-2020-04-12 add command to view list of published/unpublished episodes
-2020-05-08 add dates to search results
-2020-05-08 add color to output
+x 2020-06-22 2020-04-12 add command to view list of published/unpublished episodes
+x 2020-06-22 2020-05-08 add dates to search results
+x 2020-06-22 2020-05-08 add color to output
+2020-06-22 pare down dependencies count
